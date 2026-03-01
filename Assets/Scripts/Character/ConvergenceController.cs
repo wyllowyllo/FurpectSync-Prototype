@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Photon.Pun;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -7,6 +8,14 @@ using UnityEngine;
 public class ConvergenceController : MonoBehaviourPun, IPunObservable
 {
     private CharacterController characterController;
+
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+    [DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int vKey);
+
+    private static bool IsKeyPressed(int vKey) => (GetAsyncKeyState(vKey) & 0x8000) != 0;
+#endif
+
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float accelerationTime = 0.15f;
@@ -110,20 +119,22 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         float h = 0f;
         float v = 0f;
 
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         if (isPlayer1)
         {
-            if (Input.GetKey(KeyCode.W)) v += 1f;
-            if (Input.GetKey(KeyCode.S)) v -= 1f;
-            if (Input.GetKey(KeyCode.D)) h += 1f;
-            if (Input.GetKey(KeyCode.A)) h -= 1f;
+            if (IsKeyPressed(0x57)) v += 1f; // W
+            if (IsKeyPressed(0x53)) v -= 1f; // S
+            if (IsKeyPressed(0x44)) h += 1f; // D
+            if (IsKeyPressed(0x41)) h -= 1f; // A
         }
         else
         {
-            if (Input.GetKey(KeyCode.UpArrow)) v += 1f;
-            if (Input.GetKey(KeyCode.DownArrow)) v -= 1f;
-            if (Input.GetKey(KeyCode.RightArrow)) h += 1f;
-            if (Input.GetKey(KeyCode.LeftArrow)) h -= 1f;
+            if (IsKeyPressed(0x26)) v += 1f; // Up
+            if (IsKeyPressed(0x28)) v -= 1f; // Down
+            if (IsKeyPressed(0x27)) h += 1f; // Right
+            if (IsKeyPressed(0x25)) h -= 1f; // Left
         }
+#endif
 
         return new Vector2(h, v);
     }
@@ -144,8 +155,6 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         if (bufferTimer >= bufferTime)
         {
             combinedDirection = player1Input + player2Input;
-            player1Input = Vector2.zero;
-            player2Input = Vector2.zero;
             bufferTimer = 0f;
         }
     }
@@ -230,18 +239,29 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         vcam.LookAt = transform;
     }
 
+    private bool prevLeftBracket;
+    private bool prevRightBracket;
+
     private void AdjustBufferSize()
     {
-        if (Input.GetKeyDown(KeyCode.LeftBracket))
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        bool leftBracket = IsKeyPressed(0xDB);  // [
+        bool rightBracket = IsKeyPressed(0xDD); // ]
+
+        if (leftBracket && !prevLeftBracket)
         {
             bufferTime = Mathf.Max(0.01f, bufferTime - 0.01f);
             Debug.Log($"[Buffer] Decreased to {bufferTime * 1000f:F0}ms");
         }
 
-        if (Input.GetKeyDown(KeyCode.RightBracket))
+        if (rightBracket && !prevRightBracket)
         {
             bufferTime = Mathf.Min(0.5f, bufferTime + 0.01f);
             Debug.Log($"[Buffer] Increased to {bufferTime * 1000f:F0}ms");
         }
+
+        prevLeftBracket = leftBracket;
+        prevRightBracket = rightBracket;
+#endif
     }
 }

@@ -154,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae1f4cc40d62a0a458ae1a03a09cc2d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConvergenceController
-  moveSpeed: 10
+  moveSpeed: 5
   accelerationTime: 0.15
   decelerationTime: 0.1
   bufferTime: 0.01
