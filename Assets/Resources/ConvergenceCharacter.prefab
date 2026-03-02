@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 1570206207670342484}
   - component: {fileID: 6705247914134554004}
   - component: {fileID: 8257005347062906088}
-  - component: {fileID: -18662245236062075}
   m_Layer: 0
   m_Name: ConvergenceCharacter
   m_TagString: Player
@@ -162,21 +161,6 @@ MonoBehaviour:
   correctionThreshold: 0.5
   correctionSpeed: 5
   snapThreshold: 3
---- !u!114 &-18662245236062075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5728835556206954125}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc66af213fc5f72449d5ecde61faea52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BodySlamDetector
-  knockbackForce: 8
-  detectionRadius: 0.6
-  detectionHeight: 1.8
 --- !u!1 &6398544004128855114
 GameObject:
   m_ObjectHideFlags: 0

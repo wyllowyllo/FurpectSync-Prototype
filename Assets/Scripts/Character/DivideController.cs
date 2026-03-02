@@ -25,10 +25,6 @@ public class DivideController : MonoBehaviourPun, IPunObservable
     private Quaternion networkRotation;
     private float interpolationSpeed = 12f;
 
-    // Knockback (applied by BodySlamDetector)
-    private Vector3 knockbackVelocity;
-    private const float KNOCKBACK_DECAY = 5f;
-
     // Rubber band pull (applied by RubberBand)
     private Vector3 rubberBandForce;
 
@@ -53,8 +49,6 @@ public class DivideController : MonoBehaviourPun, IPunObservable
         ApplyTeamColor();
         networkPosition = transform.position;
         networkRotation = transform.rotation;
-
-        InitializeBodySlam();
     }
 
     void Start()
@@ -66,21 +60,12 @@ public class DivideController : MonoBehaviourPun, IPunObservable
             gameObject.AddComponent<RubberBand>();
     }
 
-    private void InitializeBodySlam()
-    {
-        var slam = GetComponent<BodySlamDetector>();
-        if (slam == null)
-            slam = gameObject.AddComponent<BodySlamDetector>();
-        slam.Initialize(isTeamA, photonView.IsMine);
-    }
-
     void Update()
     {
         if (photonView.IsMine)
         {
             ProcessLocalInput();
             ApplyMovement();
-            CheckFallAndRespawn();
         }
         else
         {
@@ -110,10 +95,6 @@ public class DivideController : MonoBehaviourPun, IPunObservable
     {
         var movement = new Vector3(currentVelocity.x, 0f, currentVelocity.y) * Time.deltaTime;
 
-        // Add knockback
-        movement += knockbackVelocity * Time.deltaTime;
-        knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, Time.deltaTime * KNOCKBACK_DECAY);
-
         // Add rubber band pull
         movement += rubberBandForce * Time.deltaTime;
         rubberBandForce = Vector3.zero;
@@ -131,28 +112,10 @@ public class DivideController : MonoBehaviourPun, IPunObservable
         }
     }
 
-    private void CheckFallAndRespawn()
-    {
-        if (transform.position.y >= -5f) return;
-
-        Vector3 respawn = new Vector3(transform.position.x, 2f, transform.position.z);
-        characterController.enabled = false;
-        transform.position = respawn;
-        characterController.enabled = true;
-        currentVelocity = Vector2.zero;
-        knockbackVelocity = Vector3.zero;
-        Debug.Log("[Divide] Fall detected — respawned");
-    }
-
     private void InterpolatePosition()
     {
         transform.position = Vector3.Lerp(transform.position, networkPosition, Time.deltaTime * interpolationSpeed);
         transform.rotation = Quaternion.Slerp(transform.rotation, networkRotation, Time.deltaTime * interpolationSpeed);
-    }
-
-    public void ApplyKnockback(Vector3 force)
-    {
-        knockbackVelocity += force;
     }
 
     public void ApplyRubberBandForce(Vector3 force)

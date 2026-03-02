@@ -38,10 +38,6 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
     [SerializeField] private float correctionSpeed = 5f;
     [SerializeField] private float snapThreshold = 3f;
 
-    // Knockback
-    private Vector3 knockbackVelocity;
-    private const float KNOCKBACK_DECAY = 5f;
-
     // Input send throttle (20Hz) — delta compressed
     private float inputSendTimer;
     private const float INPUT_SEND_INTERVAL = 0.05f;
@@ -72,22 +68,12 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         ApplyTeamColor();
         authorityPosition = transform.position;
         authorityRotation = transform.rotation;
-
-        InitializeBodySlam();
     }
 
     void Start()
     {
         if (IsLocalPlayerOnTeam())
             AssignCinemachineTarget();
-    }
-
-    private void InitializeBodySlam()
-    {
-        var slam = GetComponent<BodySlamDetector>();
-        if (slam == null)
-            slam = gameObject.AddComponent<BodySlamDetector>();
-        slam.Initialize(isTeamA, PhotonNetwork.IsMasterClient);
     }
 
     void Update()
@@ -99,7 +85,6 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         {
             UpdateBuffer();
             ApplyMovement();
-            CheckFallAndRespawn();
         }
         else
         {
@@ -168,11 +153,6 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         }
     }
 
-    public void ApplyKnockback(Vector3 force)
-    {
-        knockbackVelocity += force;
-    }
-
     private void ApplyMovement()
     {
         Vector2 targetVelocity = combinedDirection * moveSpeed;
@@ -188,10 +168,6 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
 
         var movement = new Vector3(currentVelocity.x, 0f, currentVelocity.y) * Time.deltaTime;
 
-        // Add knockback
-        movement += knockbackVelocity * Time.deltaTime;
-        knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, Time.deltaTime * KNOCKBACK_DECAY);
-
         characterController.Move(movement);
 
         if (currentVelocity.sqrMagnitude > 0.01f)
@@ -203,20 +179,6 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
                 Time.deltaTime * 10f
             );
         }
-    }
-
-    private void CheckFallAndRespawn()
-    {
-        if (transform.position.y >= -5f) return;
-
-        // Respawn at a safe position above current XZ
-        Vector3 respawn = new Vector3(transform.position.x, 2f, transform.position.z);
-        characterController.enabled = false;
-        transform.position = respawn;
-        characterController.enabled = true;
-        currentVelocity = Vector2.zero;
-        knockbackVelocity = Vector3.zero;
-        Debug.Log("[Convergence] Fall detected — respawned");
     }
 
     private void ApplySoftCorrection()
