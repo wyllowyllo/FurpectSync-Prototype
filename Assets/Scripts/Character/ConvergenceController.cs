@@ -134,19 +134,39 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         float v = 0f;
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        if (isPlayer1)
+        if (isTeamA)
         {
-            if (IsKeyPressed(0x57)) v += 1f; // W
-            if (IsKeyPressed(0x53)) v -= 1f; // S
-            if (IsKeyPressed(0x44)) h += 1f; // D
-            if (IsKeyPressed(0x41)) h -= 1f; // A
+            if (isPlayer1)
+            {
+                if (IsKeyPressed(0x57)) v += 1f; // W
+                if (IsKeyPressed(0x53)) v -= 1f; // S
+                if (IsKeyPressed(0x44)) h += 1f; // D
+                if (IsKeyPressed(0x41)) h -= 1f; // A
+            }
+            else
+            {
+                if (IsKeyPressed(0x33)) v += 1f; // 3
+                if (IsKeyPressed(0x32)) v -= 1f; // 2
+                if (IsKeyPressed(0x34)) h += 1f; // 4
+                if (IsKeyPressed(0x31)) h -= 1f; // 1
+            }
         }
         else
         {
-            if (IsKeyPressed(0x26)) v += 1f; // Up
-            if (IsKeyPressed(0x28)) v -= 1f; // Down
-            if (IsKeyPressed(0x27)) h += 1f; // Right
-            if (IsKeyPressed(0x25)) h -= 1f; // Left
+            if (isPlayer1)
+            {
+                if (IsKeyPressed(0x26)) v += 1f; // Up
+                if (IsKeyPressed(0x28)) v -= 1f; // Down
+                if (IsKeyPressed(0x27)) h += 1f; // Right
+                if (IsKeyPressed(0x25)) h -= 1f; // Left
+            }
+            else
+            {
+                if (IsKeyPressed(0x39)) v += 1f; // 9
+                if (IsKeyPressed(0x38)) v -= 1f; // 8
+                if (IsKeyPressed(0x30)) h += 1f; // 0
+                if (IsKeyPressed(0x37)) h -= 1f; // 7
+            }
         }
 #endif
 
