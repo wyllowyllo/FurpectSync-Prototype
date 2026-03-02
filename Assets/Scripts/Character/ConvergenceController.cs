@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using Photon.Pun;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -8,13 +7,6 @@ using UnityEngine;
 public class ConvergenceController : MonoBehaviourPun, IPunObservable
 {
     private CharacterController characterController;
-
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-    [DllImport("user32.dll")]
-    private static extern short GetAsyncKeyState(int vKey);
-
-    private static bool IsKeyPressed(int vKey) => (GetAsyncKeyState(vKey) & 0x8000) != 0;
-#endif
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
@@ -46,6 +38,10 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
     [SerializeField] private float correctionSpeed = 5f;
     [SerializeField] private float snapThreshold = 3f;
 
+    // Knockback
+    private Vector3 knockbackVelocity;
+    private const float KNOCKBACK_DECAY = 5f;
+
     // Input send throttle (20Hz) — delta compressed
     private float inputSendTimer;
     private const float INPUT_SEND_INTERVAL = 0.05f;
@@ -76,12 +72,22 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         ApplyTeamColor();
         authorityPosition = transform.position;
         authorityRotation = transform.rotation;
+
+        InitializeBodySlam();
     }
 
     void Start()
     {
         if (IsLocalPlayerOnTeam())
             AssignCinemachineTarget();
+    }
+
+    private void InitializeBodySlam()
+    {
+        var slam = GetComponent<BodySlamDetector>();
+        if (slam == null)
+            slam = gameObject.AddComponent<BodySlamDetector>();
+        slam.Initialize(isTeamA, PhotonNetwork.IsMasterClient);
     }
 
     void Update()
@@ -93,6 +99,7 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         {
             UpdateBuffer();
             ApplyMovement();
+            CheckFallAndRespawn();
         }
         else
         {
@@ -124,48 +131,7 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
     {
         int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
         bool isPlayer1 = localActor == player1ActorNumber;
-
-        float h = 0f;
-        float v = 0f;
-
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        if (isTeamA)
-        {
-            if (isPlayer1)
-            {
-                if (IsKeyPressed(0x57)) v += 1f; // W
-                if (IsKeyPressed(0x53)) v -= 1f; // S
-                if (IsKeyPressed(0x44)) h += 1f; // D
-                if (IsKeyPressed(0x41)) h -= 1f; // A
-            }
-            else
-            {
-                if (IsKeyPressed(0x33)) v += 1f; // 3
-                if (IsKeyPressed(0x32)) v -= 1f; // 2
-                if (IsKeyPressed(0x34)) h += 1f; // 4
-                if (IsKeyPressed(0x31)) h -= 1f; // 1
-            }
-        }
-        else
-        {
-            if (isPlayer1)
-            {
-                if (IsKeyPressed(0x26)) v += 1f; // Up
-                if (IsKeyPressed(0x28)) v -= 1f; // Down
-                if (IsKeyPressed(0x27)) h += 1f; // Right
-                if (IsKeyPressed(0x25)) h -= 1f; // Left
-            }
-            else
-            {
-                if (IsKeyPressed(0x39)) v += 1f; // 9
-                if (IsKeyPressed(0x38)) v -= 1f; // 8
-                if (IsKeyPressed(0x30)) h += 1f; // 0
-                if (IsKeyPressed(0x37)) h -= 1f; // 7
-            }
-        }
-#endif
-
-        return new Vector2(h, v);
+        return InputReader.ReadMovementInput(isTeamA, isPlayer1);
     }
 
     [PunRPC]
@@ -202,6 +168,11 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         }
     }
 
+    public void ApplyKnockback(Vector3 force)
+    {
+        knockbackVelocity += force;
+    }
+
     private void ApplyMovement()
     {
         Vector2 targetVelocity = combinedDirection * moveSpeed;
@@ -216,6 +187,11 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
             currentVelocity = targetVelocity;
 
         var movement = new Vector3(currentVelocity.x, 0f, currentVelocity.y) * Time.deltaTime;
+
+        // Add knockback
+        movement += knockbackVelocity * Time.deltaTime;
+        knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, Time.deltaTime * KNOCKBACK_DECAY);
+
         characterController.Move(movement);
 
         if (currentVelocity.sqrMagnitude > 0.01f)
@@ -227,6 +203,20 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
                 Time.deltaTime * 10f
             );
         }
+    }
+
+    private void CheckFallAndRespawn()
+    {
+        if (transform.position.y >= -5f) return;
+
+        // Respawn at a safe position above current XZ
+        Vector3 respawn = new Vector3(transform.position.x, 2f, transform.position.z);
+        characterController.enabled = false;
+        transform.position = respawn;
+        characterController.enabled = true;
+        currentVelocity = Vector2.zero;
+        knockbackVelocity = Vector3.zero;
+        Debug.Log("[Convergence] Fall detected — respawned");
     }
 
     private void ApplySoftCorrection()
@@ -306,24 +296,16 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
 
     private void AdjustBufferSize()
     {
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        bool leftBracket = IsKeyPressed(0xDB);  // [
-        bool rightBracket = IsKeyPressed(0xDD); // ]
-
-        if (leftBracket && !prevLeftBracket)
+        if (InputReader.IsKeyDown(0xDB, ref prevLeftBracket)) // [
         {
             bufferTime = Mathf.Max(0.01f, bufferTime - 0.01f);
             Debug.Log($"[Buffer] Decreased to {bufferTime * 1000f:F0}ms");
         }
 
-        if (rightBracket && !prevRightBracket)
+        if (InputReader.IsKeyDown(0xDD, ref prevRightBracket)) // ]
         {
             bufferTime = Mathf.Min(0.5f, bufferTime + 0.01f);
             Debug.Log($"[Buffer] Increased to {bufferTime * 1000f:F0}ms");
         }
-
-        prevLeftBracket = leftBracket;
-        prevRightBracket = rightBracket;
-#endif
     }
 }

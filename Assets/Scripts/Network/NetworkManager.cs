@@ -8,11 +8,17 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [SerializeField] private Transform spawnPointTeamA;
     [SerializeField] private Transform spawnPointTeamB;
 
+    [Header("Mode Manager")]
+    [SerializeField] private ModeManager modeManager;
+
     private const int MAX_PLAYERS = 4;
     private const int TEAM_SIZE = 2;
 
     private bool teamASpawned;
     private bool teamBSpawned;
+
+    public Transform SpawnPointTeamA => spawnPointTeamA;
+    public Transform SpawnPointTeamB => spawnPointTeamB;
 
     void Start()
     {
@@ -72,7 +78,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         return count;
     }
 
-    private int[] GetTeamActorNumbers(Player[] players, bool isTeamA)
+    public int[] GetTeamActorNumbers(Player[] players, bool isTeamA)
     {
         var result = new int[TEAM_SIZE];
         int index = 0;
@@ -88,13 +94,16 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         object[] initData = { teamActorNumbers[0], teamActorNumbers[1], isTeamA };
 
-        PhotonNetwork.Instantiate(
+        var go = PhotonNetwork.Instantiate(
             "ConvergenceCharacter",
             position,
             Quaternion.identity,
             0,
             initData
         );
+
+        if (modeManager != null)
+            modeManager.RegisterTeam(teamActorNumbers[0], teamActorNumbers[1], isTeamA, go);
 
         Debug.Log($"[NetworkManager] Spawned ConvergenceCharacter for actors {teamActorNumbers[0]}, {teamActorNumbers[1]}");
     }

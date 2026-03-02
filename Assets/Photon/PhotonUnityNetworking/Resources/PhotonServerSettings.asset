@@ -41,6 +41,11 @@ MonoBehaviour:
   - ReceiveInput
   - RespawnSpaceship
   - ReceiveCombinedDirection
+  - DestroyOwnedDivideChars
+  - NotifyTransitionComplete
+  - NotifyTransitionStart
+  - RequestModeSwitch
+  - SpawnDivideCharacter
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

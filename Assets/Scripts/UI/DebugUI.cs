@@ -10,12 +10,14 @@ public class DebugUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI modeText;
     [SerializeField] private TextMeshProUGUI playersText;
 
-    private ConvergenceController trackedController;
+    [SerializeField] private ModeManager modeManager;
+
+    private ConvergenceController trackedConvergence;
+    private DivideController trackedDivide;
 
     void Update()
     {
-        if (trackedController == null)
-            FindLocalTeamController();
+        FindTrackedController();
 
         UpdatePingDisplay();
         UpdateBufferDisplay();
@@ -24,19 +26,44 @@ public class DebugUI : MonoBehaviour
         UpdatePlayersDisplay();
     }
 
-    private void FindLocalTeamController()
+    private void FindTrackedController()
     {
         if (!PhotonNetwork.InRoom) return;
 
-        var controllers = FindObjectsByType<ConvergenceController>(FindObjectsSortMode.None);
+        ModeManager.GameMode mode = modeManager != null
+            ? modeManager.CurrentMode
+            : ModeManager.GameMode.Convergence;
+
         int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
 
-        foreach (var cc in controllers)
+        if (mode == ModeManager.GameMode.Convergence || mode == ModeManager.GameMode.Transitioning)
         {
-            if (localActor == cc.Player1ActorNumber || localActor == cc.Player2ActorNumber)
+            if (trackedConvergence != null) return;
+            trackedDivide = null;
+
+            var controllers = FindObjectsByType<ConvergenceController>(FindObjectsSortMode.None);
+            foreach (var cc in controllers)
             {
-                trackedController = cc;
-                return;
+                if (localActor == cc.Player1ActorNumber || localActor == cc.Player2ActorNumber)
+                {
+                    trackedConvergence = cc;
+                    return;
+                }
+            }
+        }
+        else if (mode == ModeManager.GameMode.Divide)
+        {
+            if (trackedDivide != null) return;
+            trackedConvergence = null;
+
+            var controllers = FindObjectsByType<DivideController>(FindObjectsSortMode.None);
+            foreach (var dc in controllers)
+            {
+                if (dc.photonView.IsMine)
+                {
+                    trackedDivide = dc;
+                    return;
+                }
             }
         }
     }
@@ -53,44 +80,58 @@ public class DebugUI : MonoBehaviour
     {
         if (bufferText == null) return;
 
-        if (trackedController == null)
+        if (trackedConvergence != null)
+        {
+            float bufferMs = trackedConvergence.bufferTime * 1000f;
+            float timerMs = trackedConvergence.BufferTimer * 1000f;
+            bool hasP1 = trackedConvergence.Player1Input.sqrMagnitude > 0.001f;
+            bool hasP2 = trackedConvergence.Player2Input.sqrMagnitude > 0.001f;
+
+            string p1 = hasP1 ? "<color=green>OK</color>" : "<color=red>--</color>";
+            string p2 = hasP2 ? "<color=green>OK</color>" : "<color=red>--</color>";
+
+            bufferText.text = $"[Buffer] {bufferMs:F0}ms ({timerMs:F0}ms) | P1:{p1} P2:{p2}";
+        }
+        else if (trackedDivide != null)
+        {
+            bufferText.text = "[Buffer] N/A (Divide mode)";
+        }
+        else
         {
             bufferText.text = "[Buffer] --";
-            return;
         }
-
-        float bufferMs = trackedController.bufferTime * 1000f;
-        float timerMs = trackedController.BufferTimer * 1000f;
-        bool hasP1 = trackedController.Player1Input.sqrMagnitude > 0.001f;
-        bool hasP2 = trackedController.Player2Input.sqrMagnitude > 0.001f;
-
-        string p1 = hasP1 ? "<color=green>OK</color>" : "<color=red>--</color>";
-        string p2 = hasP2 ? "<color=green>OK</color>" : "<color=red>--</color>";
-
-        bufferText.text = $"[Buffer] {bufferMs:F0}ms ({timerMs:F0}ms) | P1:{p1} P2:{p2}";
     }
 
     private void UpdateVectorDisplay()
     {
         if (vectorText == null) return;
 
-        if (trackedController == null)
+        if (trackedConvergence != null)
+        {
+            Vector2 p1 = trackedConvergence.Player1Input;
+            Vector2 p2 = trackedConvergence.Player2Input;
+            Vector2 combined = p1 + p2;
+            vectorText.text = $"[Vector] P1:({p1.x:F1},{p1.y:F1}) + P2:({p2.x:F1},{p2.y:F1}) = ({combined.x:F1},{combined.y:F1})";
+        }
+        else if (trackedDivide != null)
+        {
+            Vector2 vel = trackedDivide.CurrentVelocity;
+            vectorText.text = $"[Vector] Divide vel:({vel.x:F1},{vel.y:F1})";
+        }
+        else
         {
             vectorText.text = "[Vector] --";
-            return;
         }
-
-        Vector2 p1 = trackedController.Player1Input;
-        Vector2 p2 = trackedController.Player2Input;
-        Vector2 combined = p1 + p2;
-
-        vectorText.text = $"[Vector] P1:({p1.x:F1},{p1.y:F1}) + P2:({p2.x:F1},{p2.y:F1}) = ({combined.x:F1},{combined.y:F1})";
     }
 
     private void UpdateModeDisplay()
     {
         if (modeText == null) return;
-        modeText.text = "[Mode] CONVERGENCE";
+
+        if (modeManager != null)
+            modeText.text = $"[Mode] {modeManager.CurrentMode.ToString().ToUpper()} (Space to switch)";
+        else
+            modeText.text = "[Mode] CONVERGENCE";
     }
 
     private void UpdatePlayersDisplay()
