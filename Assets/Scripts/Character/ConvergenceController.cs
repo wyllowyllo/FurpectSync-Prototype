@@ -40,9 +40,17 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
     private Vector2 combinedDirection;
     private Vector2 currentVelocity;
 
-    // Non-master: interpolation targets
+    // Non-master: interpolation targets (opponent team)
     private Vector3 networkPosition;
     private Quaternion networkRotation;
+
+    // Soft correction: authority position from master (own team)
+    private Vector3 authorityPosition;
+    private Quaternion authorityRotation;
+
+    [Header("Soft Correction")]
+    [SerializeField] private float correctionThreshold = 0.5f;
+    [SerializeField] private float correctionSpeed = 5f;
 
     // Input send throttle (20Hz)
     private float inputSendTimer;
@@ -72,6 +80,8 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         ApplyTeamColor();
         networkPosition = transform.position;
         networkRotation = transform.rotation;
+        authorityPosition = transform.position;
+        authorityRotation = transform.rotation;
     }
 
     void Start()
@@ -86,11 +96,15 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
             SendInputToMaster();
 
         if (PhotonNetwork.IsMasterClient)
-        {
             UpdateBuffer();
+
+        if (IsLocalPlayerOnTeam())
+        {
             ApplyMovement();
+            if (!PhotonNetwork.IsMasterClient)
+                ApplySoftCorrection();
         }
-        else
+        else if (!PhotonNetwork.IsMasterClient)
         {
             InterpolatePosition();
         }
@@ -148,14 +162,22 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
             player2Input = new Vector2(x, y);
     }
 
+    [PunRPC]
+    private void ReceiveCombinedDirection(float x, float y)
+    {
+        combinedDirection = new Vector2(x, y);
+    }
+
     private void UpdateBuffer()
     {
         bufferTimer += Time.deltaTime;
 
         if (bufferTimer >= bufferTime)
         {
-            combinedDirection = player1Input + player2Input;
+            Vector2 combined = player1Input + player2Input;
             bufferTimer = 0f;
+
+            photonView.RPC(nameof(ReceiveCombinedDirection), RpcTarget.All, combined.x, combined.y);
         }
     }
 
@@ -193,6 +215,20 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         transform.rotation = Quaternion.Lerp(transform.rotation, networkRotation, t);
     }
 
+    private void ApplySoftCorrection()
+    {
+        float drift = Vector3.Distance(transform.position, authorityPosition);
+        if (drift > correctionThreshold)
+        {
+            float t = Time.deltaTime * correctionSpeed;
+            transform.position = Vector3.Lerp(transform.position, authorityPosition, t);
+        }
+
+        transform.rotation = Quaternion.Slerp(
+            transform.rotation, authorityRotation,
+            Time.deltaTime * correctionSpeed * 0.5f);
+    }
+
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
@@ -204,11 +240,22 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         }
         else
         {
-            networkPosition = (Vector3)stream.ReceiveNext();
-            networkRotation = (Quaternion)stream.ReceiveNext();
+            Vector3 pos = (Vector3)stream.ReceiveNext();
+            Quaternion rot = (Quaternion)stream.ReceiveNext();
             float vx = (float)stream.ReceiveNext();
             float vy = (float)stream.ReceiveNext();
-            currentVelocity = new Vector2(vx, vy);
+
+            if (IsLocalPlayerOnTeam())
+            {
+                authorityPosition = pos;
+                authorityRotation = rot;
+            }
+            else
+            {
+                networkPosition = pos;
+                networkRotation = rot;
+                currentVelocity = new Vector2(vx, vy);
+            }
         }
     }
 
