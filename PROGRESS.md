@@ -1,3 +1,4 @@
+
 # FurpectSync Prototype — Progress
 
 ## Day 1 (2026-03-01) — P0 컨버전스 모드 핵심

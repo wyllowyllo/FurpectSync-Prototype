@@ -25,9 +25,6 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
     [Tooltip("Buffer time in seconds. Adjust with [ ] keys at runtime.")]
     public float bufferTime = 0.1f;
 
-    [Header("Network Interpolation")]
-    [SerializeField] private float lerpSpeed = 10f;
-
     // Team assignment (set via instantiation data)
     private int player1ActorNumber;
     private int player2ActorNumber;
@@ -40,21 +37,20 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
     private Vector2 combinedDirection;
     private Vector2 currentVelocity;
 
-    // Non-master: interpolation targets (opponent team)
-    private Vector3 networkPosition;
-    private Quaternion networkRotation;
-
-    // Soft correction: authority position from master (own team)
+    // Non-master: authority position from master
     private Vector3 authorityPosition;
     private Quaternion authorityRotation;
 
     [Header("Soft Correction")]
-    [SerializeField] private float correctionThreshold = 0.5f;
+    [SerializeField] private float correctionThreshold = 0.3f;
     [SerializeField] private float correctionSpeed = 5f;
+    [SerializeField] private float snapThreshold = 3f;
 
-    // Input send throttle (20Hz)
+    // Input send throttle (20Hz) — delta compressed
     private float inputSendTimer;
     private const float INPUT_SEND_INTERVAL = 0.05f;
+    private Vector2 lastSentInput;
+    private Vector2 lastBroadcastDirection;
 
     // Debug: exposed for DebugUI
     public Vector2 Player1Input => player1Input;
@@ -78,8 +74,6 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         }
 
         ApplyTeamColor();
-        networkPosition = transform.position;
-        networkRotation = transform.rotation;
         authorityPosition = transform.position;
         authorityRotation = transform.rotation;
     }
@@ -96,17 +90,14 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
             SendInputToMaster();
 
         if (PhotonNetwork.IsMasterClient)
+        {
             UpdateBuffer();
-
-        if (IsLocalPlayerOnTeam())
+            ApplyMovement();
+        }
+        else
         {
             ApplyMovement();
-            if (!PhotonNetwork.IsMasterClient)
-                ApplySoftCorrection();
-        }
-        else if (!PhotonNetwork.IsMasterClient)
-        {
-            InterpolatePosition();
+            ApplySoftCorrection();
         }
 
         AdjustBufferSize();
@@ -122,6 +113,10 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         Vector2 rawInput = ReadLocalInput();
         Vector2 normalizedInput = rawInput.sqrMagnitude > 1f ? rawInput.normalized : rawInput;
 
+        if (normalizedInput == lastSentInput)
+            return;
+
+        lastSentInput = normalizedInput;
         photonView.RPC(nameof(ReceiveInput), RpcTarget.MasterClient, normalizedInput.x, normalizedInput.y);
     }
 
@@ -197,7 +192,13 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
             Vector2 combined = player1Input + player2Input;
             bufferTimer = 0f;
 
-            photonView.RPC(nameof(ReceiveCombinedDirection), RpcTarget.All, combined.x, combined.y);
+            combinedDirection = combined;
+
+            if (combined != lastBroadcastDirection)
+            {
+                lastBroadcastDirection = combined;
+                photonView.RPC(nameof(ReceiveCombinedDirection), RpcTarget.Others, combined.x, combined.y);
+            }
         }
     }
 
@@ -228,25 +229,31 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         }
     }
 
-    private void InterpolatePosition()
-    {
-        float t = Time.deltaTime * lerpSpeed;
-        transform.position = Vector3.Lerp(transform.position, networkPosition, t);
-        transform.rotation = Quaternion.Lerp(transform.rotation, networkRotation, t);
-    }
-
     private void ApplySoftCorrection()
     {
         float drift = Vector3.Distance(transform.position, authorityPosition);
-        if (drift > correctionThreshold)
+
+        if (drift > snapThreshold)
         {
-            float t = Time.deltaTime * correctionSpeed;
-            transform.position = Vector3.Lerp(transform.position, authorityPosition, t);
+            characterController.enabled = false;
+            transform.position = authorityPosition;
+            transform.rotation = authorityRotation;
+            characterController.enabled = true;
+            currentVelocity = Vector2.zero;
+            return;
         }
 
-        transform.rotation = Quaternion.Slerp(
-            transform.rotation, authorityRotation,
-            Time.deltaTime * correctionSpeed * 0.5f);
+        bool isStopped = combinedDirection.sqrMagnitude < 0.01f
+                         && currentVelocity.sqrMagnitude < 0.1f;
+
+        if (drift > correctionThreshold && isStopped)
+        {
+            Vector3 correction = (authorityPosition - transform.position) * (Time.deltaTime * correctionSpeed);
+            characterController.Move(correction);
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation, authorityRotation,
+                Time.deltaTime * correctionSpeed * 0.5f);
+        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -260,22 +267,10 @@ public class ConvergenceController : MonoBehaviourPun, IPunObservable
         }
         else
         {
-            Vector3 pos = (Vector3)stream.ReceiveNext();
-            Quaternion rot = (Quaternion)stream.ReceiveNext();
-            float vx = (float)stream.ReceiveNext();
-            float vy = (float)stream.ReceiveNext();
-
-            if (IsLocalPlayerOnTeam())
-            {
-                authorityPosition = pos;
-                authorityRotation = rot;
-            }
-            else
-            {
-                networkPosition = pos;
-                networkRotation = rot;
-                currentVelocity = new Vector2(vx, vy);
-            }
+            authorityPosition = (Vector3)stream.ReceiveNext();
+            authorityRotation = (Quaternion)stream.ReceiveNext();
+            stream.ReceiveNext(); // velocity x (unused, keep stream order)
+            stream.ReceiveNext(); // velocity y (unused, keep stream order)
         }
     }
 

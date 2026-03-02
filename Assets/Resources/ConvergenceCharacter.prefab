@@ -158,9 +158,9 @@ MonoBehaviour:
   accelerationTime: 0.15
   decelerationTime: 0.1
   bufferTime: 0.01
-  lerpSpeed: 10
   correctionThreshold: 0.5
   correctionSpeed: 5
+  snapThreshold: 3
 --- !u!1 &6398544004128855114
 GameObject:
   m_ObjectHideFlags: 0
