@@ -1,9 +1,12 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
+#if !UNITY_EDITOR_WIN
+using UnityEngine.InputSystem;
+#endif
 
 public static class InputReader
 {
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
     [DllImport("user32.dll")]
     private static extern short GetAsyncKeyState(int vKey);
 
@@ -20,12 +23,25 @@ public static class InputReader
         return down;
     }
 
+    public static bool IsModeSwitchKeyDown(bool isTeamA, ref bool prevState)
+    {
+#if UNITY_EDITOR_WIN
+        int vKey = isTeamA ? 0x20 : 0x0D; // Team A: Space, Team B: Enter
+        return IsKeyDown(vKey, ref prevState);
+#else
+        bool current = Keyboard.current?.spaceKey.isPressed ?? false;
+        bool down = current && !prevState;
+        prevState = current;
+        return down;
+#endif
+    }
+
     public static Vector2 ReadMovementInput(bool isTeamA, bool isPlayer1)
     {
         float h = 0f;
         float v = 0f;
 
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
         if (isTeamA)
         {
             if (isPlayer1)
@@ -59,6 +75,15 @@ public static class InputReader
                 if (IsKeyPressed(0x30)) h += 1f; // 0
                 if (IsKeyPressed(0x37)) h -= 1f; // 7
             }
+        }
+#elif UNITY_STANDALONE_WIN
+        var kb = Keyboard.current;
+        if (kb != null)
+        {
+            if (kb.wKey.isPressed) v += 1f;
+            if (kb.sKey.isPressed) v -= 1f;
+            if (kb.dKey.isPressed) h += 1f;
+            if (kb.aKey.isPressed) h -= 1f;
         }
 #endif
 
