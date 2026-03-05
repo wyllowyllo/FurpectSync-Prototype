@@ -10,10 +10,8 @@ public class ModeManager : MonoBehaviourPun
     [Header("Transition")]
     [SerializeField] private float transitionDelay = 0.3f;
 
-    // Per-team mode state
-    private readonly Dictionary<bool, GameMode> teamModes = new();
-    private bool prevTeamAKey;
-    private bool prevTeamBKey;
+    private GameMode currentMode = GameMode.Convergence;
+    private bool prevSpaceKey;
 
     // Team info (populated by NetworkManager)
     private readonly List<TeamInfo> teams = new();
@@ -21,20 +19,7 @@ public class ModeManager : MonoBehaviourPun
     // Spawned character tracking
     private readonly Dictionary<bool, GameObject> convergenceChars = new();
 
-    public GameMode CurrentMode
-    {
-        get
-        {
-            if (!PhotonNetwork.InRoom) return GameMode.Convergence;
-            int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
-            foreach (var team in teams)
-            {
-                if (localActor == team.Player1ActorNumber || localActor == team.Player2ActorNumber)
-                    return teamModes.TryGetValue(team.IsTeamA, out var m) ? m : GameMode.Convergence;
-            }
-            return GameMode.Convergence;
-        }
-    }
+    public GameMode CurrentMode => currentMode;
 
     public struct TeamInfo
     {
@@ -52,59 +37,55 @@ public class ModeManager : MonoBehaviourPun
             IsTeamA = isTeamA
         });
         convergenceChars[isTeamA] = convergenceChar;
-        teamModes[isTeamA] = GameMode.Convergence;
     }
 
     void Update()
     {
         if (teams.Count == 0) return;
-        int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
+        if (currentMode == GameMode.Transitioning) return;
+        if (!IsLocalPlayerInAnyTeam()) return;
 
+        if (InputReader.IsKeyDown(0x20, ref prevSpaceKey))
+            photonView.RPC(nameof(RequestModeSwitch), RpcTarget.MasterClient);
+    }
+
+    private bool IsLocalPlayerInAnyTeam()
+    {
+        int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
         foreach (var team in teams)
         {
-            if (localActor != team.Player1ActorNumber && localActor != team.Player2ActorNumber)
-                continue;
-
-            if (teamModes.TryGetValue(team.IsTeamA, out GameMode mode) && mode == GameMode.Transitioning)
-                break;
-
-            bool pressed = team.IsTeamA
-                ? InputReader.IsModeSwitchKeyDown(true, ref prevTeamAKey)
-                : InputReader.IsModeSwitchKeyDown(false, ref prevTeamBKey);
-
-            if (pressed)
-                photonView.RPC(nameof(RequestModeSwitch), RpcTarget.MasterClient, team.IsTeamA);
-
-            break; // 로컬 플레이어는 정확히 한 팀에만 속함
+            if (localActor == team.Player1ActorNumber || localActor == team.Player2ActorNumber)
+                return true;
         }
+        return false;
     }
 
     [PunRPC]
-    private void RequestModeSwitch(bool isTeamA, PhotonMessageInfo info)
+    private void RequestModeSwitch(PhotonMessageInfo info)
     {
         if (!PhotonNetwork.IsMasterClient) return;
-        if (!teamModes.TryGetValue(isTeamA, out GameMode mode) || mode == GameMode.Transitioning) return;
+        if (currentMode == GameMode.Transitioning) return;
 
-        Debug.Log($"[ModeManager] Mode switch requested by Actor#{info.Sender.ActorNumber} for Team{(isTeamA ? "A" : "B")}");
+        Debug.Log($"[ModeManager] Mode switch requested by Actor#{info.Sender.ActorNumber}");
 
-        if (mode == GameMode.Convergence)
-            StartCoroutine(TransitionToDivide(isTeamA));
-        else if (mode == GameMode.Divide)
-            StartCoroutine(TransitionToConvergence(isTeamA));
+        if (currentMode == GameMode.Convergence)
+            StartCoroutine(TransitionToDivide());
+        else if (currentMode == GameMode.Divide)
+            StartCoroutine(TransitionToConvergence());
     }
 
     [PunRPC]
-    private void NotifyTransitionStart(bool isTeamA)
+    private void NotifyTransitionStart()
     {
-        teamModes[isTeamA] = GameMode.Transitioning;
-        Debug.Log($"[ModeManager] Transition started for Team{(isTeamA ? "A" : "B")}");
+        currentMode = GameMode.Transitioning;
+        Debug.Log("[ModeManager] Transition started");
     }
 
     [PunRPC]
-    private void NotifyTransitionComplete(bool isTeamA, int newModeInt)
+    private void NotifyTransitionComplete(int newModeInt)
     {
-        teamModes[isTeamA] = (GameMode)newModeInt;
-        Debug.Log($"[ModeManager] Transition complete → Team{(isTeamA ? "A" : "B")} {(GameMode)newModeInt}");
+        currentMode = (GameMode)newModeInt;
+        Debug.Log($"[ModeManager] Transition complete → {(GameMode)newModeInt}");
     }
 
     [PunRPC]
@@ -125,101 +106,92 @@ public class ModeManager : MonoBehaviourPun
     }
 
     [PunRPC]
-    private void DestroyOwnedDivideChars(bool isTeamA)
+    private void DestroyOwnedDivideChars()
     {
         var controllers = FindObjectsByType<DivideController>(FindObjectsSortMode.None);
         foreach (var dc in controllers)
         {
-            if (dc.photonView.IsMine && dc.IsTeamA == isTeamA)
+            if (dc.photonView.IsMine)
                 PhotonNetwork.Destroy(dc.gameObject);
         }
     }
 
-    private IEnumerator TransitionToDivide(bool isTeamA)
+    private IEnumerator TransitionToDivide()
     {
-        photonView.RPC(nameof(NotifyTransitionStart), RpcTarget.All, isTeamA);
+        photonView.RPC(nameof(NotifyTransitionStart), RpcTarget.All);
         yield return new WaitForSeconds(transitionDelay);
 
-        // Save position and destroy the team's convergence character
-        Vector3 spawnBase = Vector3.zero;
-        bool hasPos = false;
-        if (convergenceChars.TryGetValue(isTeamA, out GameObject cc) && cc != null)
+        var spawnData = new List<(TeamInfo team, Vector3 pos)>();
+        foreach (var team in teams)
         {
-            spawnBase = cc.transform.position;
-            hasPos = true;
-            PhotonNetwork.Destroy(cc);
-            convergenceChars.Remove(isTeamA);
+            if (convergenceChars.TryGetValue(team.IsTeamA, out GameObject cc) && cc != null)
+            {
+                spawnData.Add((team, cc.transform.position));
+                PhotonNetwork.Destroy(cc);
+                convergenceChars.Remove(team.IsTeamA);
+            }
         }
 
         yield return null; // Wait one frame for destroy to propagate
 
-        if (!hasPos) yield break;
-
-        // Find the team and spawn divide characters for its members
-        foreach (var team in teams)
+        foreach (var (team, spawnBase) in spawnData)
         {
-            if (team.IsTeamA != isTeamA) continue;
-
-            Vector3 offset1 = Vector3.left * 1f;
-            Vector3 offset2 = Vector3.right * 1f;
-
             photonView.RPC(nameof(SpawnDivideCharacter), RpcTarget.All,
-                spawnBase + offset1, team.Player1ActorNumber, team.Player2ActorNumber, team.IsTeamA);
+                spawnBase + Vector3.left, team.Player1ActorNumber, team.Player2ActorNumber, team.IsTeamA);
             photonView.RPC(nameof(SpawnDivideCharacter), RpcTarget.All,
-                spawnBase + offset2, team.Player2ActorNumber, team.Player1ActorNumber, team.IsTeamA);
-            break;
+                spawnBase + Vector3.right, team.Player2ActorNumber, team.Player1ActorNumber, team.IsTeamA);
         }
 
-        yield return new WaitForSeconds(0.2f); // Allow spawning to complete
+        yield return new WaitForSeconds(0.2f);
 
-        photonView.RPC(nameof(NotifyTransitionComplete), RpcTarget.All, isTeamA, (int)GameMode.Divide);
+        photonView.RPC(nameof(NotifyTransitionComplete), RpcTarget.All, (int)GameMode.Divide);
     }
 
-    private IEnumerator TransitionToConvergence(bool isTeamA)
+    private IEnumerator TransitionToConvergence()
     {
-        photonView.RPC(nameof(NotifyTransitionStart), RpcTarget.All, isTeamA);
+        photonView.RPC(nameof(NotifyTransitionStart), RpcTarget.All);
         yield return new WaitForSeconds(transitionDelay);
 
-        // Calculate midpoint from this team's divide characters
-        Vector3 p1Pos = Vector3.zero;
-        Vector3 p2Pos = Vector3.zero;
-        bool hasP1 = false, hasP2 = false;
+        var divControllers = FindObjectsByType<DivideController>(FindObjectsSortMode.None);
+        var spawnData = new List<(TeamInfo team, Vector3 midpoint)>();
 
-        TeamInfo targetTeam = default;
         foreach (var team in teams)
         {
-            if (team.IsTeamA == isTeamA) { targetTeam = team; break; }
+            Vector3 p1Pos = Vector3.zero;
+            Vector3 p2Pos = Vector3.zero;
+            bool hasP1 = false, hasP2 = false;
+
+            foreach (var dc in divControllers)
+            {
+                if (dc.IsTeamA != team.IsTeamA) continue;
+
+                if (dc.OwnerActorNumber == team.Player1ActorNumber)
+                { p1Pos = dc.transform.position; hasP1 = true; }
+                else if (dc.OwnerActorNumber == team.Player2ActorNumber)
+                { p2Pos = dc.transform.position; hasP2 = true; }
+            }
+
+            Vector3 midpoint;
+            if (hasP1 && hasP2) midpoint = (p1Pos + p2Pos) * 0.5f;
+            else if (hasP1)     midpoint = p1Pos;
+            else if (hasP2)     midpoint = p2Pos;
+            else                midpoint = Vector3.zero;
+
+            spawnData.Add((team, midpoint));
         }
 
-        var divControllers = FindObjectsByType<DivideController>(FindObjectsSortMode.None);
-        foreach (var dc in divControllers)
-        {
-            if (dc.IsTeamA != isTeamA) continue;
-
-            if (dc.OwnerActorNumber == targetTeam.Player1ActorNumber)
-            { p1Pos = dc.transform.position; hasP1 = true; }
-            else if (dc.OwnerActorNumber == targetTeam.Player2ActorNumber)
-            { p2Pos = dc.transform.position; hasP2 = true; }
-        }
-
-        Vector3 midpoint;
-        if (hasP1 && hasP2) midpoint = (p1Pos + p2Pos) * 0.5f;
-        else if (hasP1)     midpoint = p1Pos;
-        else if (hasP2)     midpoint = p2Pos;
-        else                midpoint = Vector3.zero;
-
-        // Tell all players to destroy their own DivideCharacters for this team
-        photonView.RPC(nameof(DestroyOwnedDivideChars), RpcTarget.All, isTeamA);
-
+        photonView.RPC(nameof(DestroyOwnedDivideChars), RpcTarget.All);
         yield return null; // Wait for destroy
 
-        // Master spawns convergence character at midpoint
-        object[] initData = { targetTeam.Player1ActorNumber, targetTeam.Player2ActorNumber, isTeamA };
-        var go = PhotonNetwork.Instantiate("ConvergenceCharacter", midpoint, Quaternion.identity, 0, initData);
-        convergenceChars[isTeamA] = go;
+        foreach (var (team, midpoint) in spawnData)
+        {
+            object[] initData = { team.Player1ActorNumber, team.Player2ActorNumber, team.IsTeamA };
+            var go = PhotonNetwork.Instantiate("ConvergenceCharacter", midpoint, Quaternion.identity, 0, initData);
+            convergenceChars[team.IsTeamA] = go;
+        }
 
         yield return new WaitForSeconds(0.1f);
 
-        photonView.RPC(nameof(NotifyTransitionComplete), RpcTarget.All, isTeamA, (int)GameMode.Convergence);
+        photonView.RPC(nameof(NotifyTransitionComplete), RpcTarget.All, (int)GameMode.Convergence);
     }
 }

@@ -11,6 +11,13 @@ public static class InputReader
     private static extern short GetAsyncKeyState(int vKey);
 
     public static bool IsKeyPressed(int vKey) => (GetAsyncKeyState(vKey) & 0x8000) != 0;
+#elif UNITY_STANDALONE_WIN
+    public static bool IsKeyPressed(int vKey)
+    {
+        var kb = Keyboard.current;
+        if (kb == null) return false;
+        return vKey == 0x20 && kb.spaceKey.isPressed;
+    }
 #else
     public static bool IsKeyPressed(int vKey) => false;
 #endif
@@ -21,19 +28,6 @@ public static class InputReader
         bool down = current && !prevState;
         prevState = current;
         return down;
-    }
-
-    public static bool IsModeSwitchKeyDown(bool isTeamA, ref bool prevState)
-    {
-#if UNITY_EDITOR_WIN
-        int vKey = isTeamA ? 0x20 : 0x0D; // Team A: Space, Team B: Enter
-        return IsKeyDown(vKey, ref prevState);
-#else
-        bool current = Keyboard.current?.spaceKey.isPressed ?? false;
-        bool down = current && !prevState;
-        prevState = current;
-        return down;
-#endif
     }
 
     public static Vector2 ReadMovementInput(bool isTeamA, bool isPlayer1)

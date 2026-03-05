@@ -23,6 +23,9 @@ public class RubberBand : MonoBehaviour
         lineRenderer.useWorldSpace = true;
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        lineRenderer.startColor = Color.magenta;
+        lineRenderer.endColor = Color.magenta;
         lineRenderer.enabled = false;
     }
 
