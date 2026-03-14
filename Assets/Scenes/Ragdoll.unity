@@ -1932,171 +1932,152 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1073728044664651303, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing1Limit.limit
-      value: 20
+    - target: {fileID: 2411213862548714843, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 1073728044664651303, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing2Limit.limit
-      value: 40
+    - target: {fileID: 2421098470655784560, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 1073728044664651303, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_LowTwistLimit.limit
-      value: -40
+    - target: {fileID: 3340491004564179927, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 1073728044664651303, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_HighTwistLimit.limit
-      value: 40
+    - target: {fileID: 3557446888930269746, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 1991326020815305190, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1991326020815305190, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1991326020815305190, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing1Limit.limit
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1991326020815305190, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_LowTwistLimit.limit
-      value: -80
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215627903585786509, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Axis.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215627903585786509, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215627903585786509, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215627903585786509, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215627903585786509, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing1Limit.limit
-      value: 70
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215627903585786509, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing2Limit.limit
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215627903585786509, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_LowTwistLimit.limit
-      value: -60
-      objectReference: {fileID: 0}
-    - target: {fileID: 5215627903585786509, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_HighTwistLimit.limit
-      value: 60
+    - target: {fileID: 5570994035076429867, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5818676082942201579, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
       propertyPath: m_Name
       value: Character_8d9656
       objectReference: {fileID: 0}
-    - target: {fileID: 7455860776512213693, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.x
-      value: 0
+    - target: {fileID: 5937243193681469662, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 7455860776512213693, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.z
-      value: -1
+    - target: {fileID: 6319245277159795633, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 7455860776512213693, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing1Limit.limit
-      value: 90
+    - target: {fileID: 7610375933111671854, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 7455860776512213693, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing2Limit.limit
-      value: 10
+    - target: {fileID: 8985372472810383788, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Layer
+      value: 6
       objectReference: {fileID: 0}
-    - target: {fileID: 7455860776512213693, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_LowTwistLimit.limit
-      value: -10
-      objectReference: {fileID: 0}
-    - target: {fileID: 7455860776512213693, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_HighTwistLimit.limit
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 7480157101998474782, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7480157101998474782, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7480157101998474782, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7480157101998474782, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing1Limit.limit
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 7480157101998474782, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing2Limit.limit
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 7480157101998474782, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_LowTwistLimit.limit
-      value: -10
-      objectReference: {fileID: 0}
-    - target: {fileID: 7480157101998474782, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_HighTwistLimit.limit
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635467503386245516, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635467503386245516, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_SwingAxis.z
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635467503386245516, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing1Limit.limit
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635467503386245516, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing2Limit.limit
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635467503386245516, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_LowTwistLimit.limit
-      value: -40
-      objectReference: {fileID: 0}
-    - target: {fileID: 7635467503386245516, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_HighTwistLimit.limit
-      value: 40
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050946588272881622, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing1Limit.limit
-      value: 70
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050946588272881622, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_Swing2Limit.limit
-      value: 50
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050946588272881622, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_LowTwistLimit.limit
-      value: -60
-      objectReference: {fileID: 0}
-    - target: {fileID: 9050946588272881622, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
-      propertyPath: m_HighTwistLimit.limit
-      value: 60
+    - target: {fileID: 9061724144833301724, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: a5d4cf02553b9194c88ffb0b178d0d56, type: 2}
+    - target: {fileID: 9061724144833301724, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: m_WarningMessage
+      value: 
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5818676082942201579, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1381166924}
+    - targetCorrespondingSourceObject: {fileID: 5818676082942201579, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1381166923}
+    - targetCorrespondingSourceObject: {fileID: 5818676082942201579, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1381166927}
   m_SourcePrefab: {fileID: 100100000, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+--- !u!1 &1381166922 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5818676082942201579, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+  m_PrefabInstance: {fileID: 1381166921}
+  m_PrefabAsset: {fileID: 0}
+--- !u!136 &1381166923
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1381166922}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5109995
+  m_Height: 2.4612274
+  m_Direction: 1
+  m_Center: {x: -0.0043504834, y: 1.1298761, z: 0}
+--- !u!54 &1381166924
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1381166922}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!4 &1381166925 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 3887816435764646392, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+  m_PrefabInstance: {fileID: 1381166921}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1381166926 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 9061724144833301724, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+  m_PrefabInstance: {fileID: 1381166921}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1381166927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1381166922}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a34a24a77bac4ea438aba0af9f5ee9c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallGuysRagdoll
+  animator: {fileID: 1381166926}
+  capsuleCollider: {fileID: 1381166923}
+  capsuleRb: {fileID: 1381166924}
+  hipsRoot: {fileID: 1381166925}
+  ragdollDuration: 0.8
+  blendDuration: 0.3
+  impactThreshold: 5
 --- !u!1 &1419431131
 GameObject:
   m_ObjectHideFlags: 0
@@ -2769,6 +2750,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1777378730}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1785415718
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1785415720}
+  - component: {fileID: 1785415719}
+  m_Layer: 0
+  m_Name: RagdollTestDriver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1785415719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1785415718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c92975f33067c5640af853540295676f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RagdollTestDriver
+  ragdoll: {fileID: 1381166927}
+  testImpulseForce: 15
+--- !u!4 &1785415720
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1785415718}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1924390671
 GameObject:
   m_ObjectHideFlags: 0
@@ -3561,3 +3588,4 @@ SceneRoots:
   - {fileID: 122985991}
   - {fileID: 1044535897}
   - {fileID: 1381166921}
+  - {fileID: 1785415720}

@@ -3,7 +3,12 @@
     "allow": [
       "Bash(mkdir:*)",
       "mcp__ide__getDiagnostics",
-      "mcp__claude_ai_Notion__notion-fetch"
+      "mcp__claude_ai_Notion__notion-fetch",
+      "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" log --oneline --all -20)",
+      "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" show --stat 064654a)",
+      "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" log -1 --format=\"%B\" 064654a)",
+      "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" diff HEAD~1 HEAD -- Assets/Scenes/Ragdoll.unity | head -200)",
+      "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" log --all --graph --oneline -15)"
     ]
   }
 }
