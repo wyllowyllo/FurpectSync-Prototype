@@ -18,7 +18,6 @@ public class ModeManager : MonoBehaviourPun
 
     // Spawned character tracking
     private readonly Dictionary<bool, GameObject> convergenceChars = new();
-    private readonly Dictionary<int, GameObject> divideChars = new();
 
     public GameMode CurrentMode => currentMode;
 
@@ -42,12 +41,11 @@ public class ModeManager : MonoBehaviourPun
 
     void Update()
     {
-        if (currentMode == GameMode.Transitioning) return;
         if (teams.Count == 0) return;
-
+        if (currentMode == GameMode.Transitioning) return;
         if (!IsLocalPlayerInAnyTeam()) return;
 
-        if (InputReader.IsKeyDown(0x20, ref prevSpaceKey)) // Space
+        if (InputReader.IsKeyDown(0x20, ref prevSpaceKey))
             photonView.RPC(nameof(RequestModeSwitch), RpcTarget.MasterClient);
     }
 
@@ -87,7 +85,7 @@ public class ModeManager : MonoBehaviourPun
     private void NotifyTransitionComplete(int newModeInt)
     {
         currentMode = (GameMode)newModeInt;
-        Debug.Log($"[ModeManager] Transition complete → {currentMode}");
+        Debug.Log($"[ModeManager] Transition complete → {(GameMode)newModeInt}");
     }
 
     [PunRPC]
@@ -123,37 +121,28 @@ public class ModeManager : MonoBehaviourPun
         photonView.RPC(nameof(NotifyTransitionStart), RpcTarget.All);
         yield return new WaitForSeconds(transitionDelay);
 
-        // Save positions and destroy convergence characters
-        var spawnPositions = new Dictionary<bool, Vector3>();
-        foreach (var kvp in convergenceChars)
+        var spawnData = new List<(TeamInfo team, Vector3 pos)>();
+        foreach (var team in teams)
         {
-            if (kvp.Value != null)
+            if (convergenceChars.TryGetValue(team.IsTeamA, out GameObject cc) && cc != null)
             {
-                spawnPositions[kvp.Key] = kvp.Value.transform.position;
-                PhotonNetwork.Destroy(kvp.Value);
+                spawnData.Add((team, cc.transform.position));
+                PhotonNetwork.Destroy(cc);
+                convergenceChars.Remove(team.IsTeamA);
             }
         }
-        convergenceChars.Clear();
 
         yield return null; // Wait one frame for destroy to propagate
 
-        // Tell each player to self-instantiate their DivideCharacter
-        foreach (var team in teams)
+        foreach (var (team, spawnBase) in spawnData)
         {
-            if (!spawnPositions.TryGetValue(team.IsTeamA, out Vector3 basePos))
-                continue;
-
-            // Offset P1 and P2 slightly apart
-            Vector3 offset1 = Vector3.left * 1f;
-            Vector3 offset2 = Vector3.right * 1f;
-
             photonView.RPC(nameof(SpawnDivideCharacter), RpcTarget.All,
-                basePos + offset1, team.Player1ActorNumber, team.Player2ActorNumber, team.IsTeamA);
+                spawnBase + Vector3.left, team.Player1ActorNumber, team.Player2ActorNumber, team.IsTeamA);
             photonView.RPC(nameof(SpawnDivideCharacter), RpcTarget.All,
-                basePos + offset2, team.Player2ActorNumber, team.Player1ActorNumber, team.IsTeamA);
+                spawnBase + Vector3.right, team.Player2ActorNumber, team.Player1ActorNumber, team.IsTeamA);
         }
 
-        yield return new WaitForSeconds(0.2f); // Allow spawning to complete
+        yield return new WaitForSeconds(0.2f);
 
         photonView.RPC(nameof(NotifyTransitionComplete), RpcTarget.All, (int)GameMode.Divide);
     }
@@ -163,16 +152,15 @@ public class ModeManager : MonoBehaviourPun
         photonView.RPC(nameof(NotifyTransitionStart), RpcTarget.All);
         yield return new WaitForSeconds(transitionDelay);
 
-        // Calculate midpoints and destroy divide characters
-        var midpoints = new Dictionary<bool, Vector3>();
+        var divControllers = FindObjectsByType<DivideController>(FindObjectsSortMode.None);
+        var spawnData = new List<(TeamInfo team, Vector3 midpoint)>();
+
         foreach (var team in teams)
         {
             Vector3 p1Pos = Vector3.zero;
             Vector3 p2Pos = Vector3.zero;
             bool hasP1 = false, hasP2 = false;
 
-            // Find divide characters for this team
-            var divControllers = FindObjectsByType<DivideController>(FindObjectsSortMode.None);
             foreach (var dc in divControllers)
             {
                 if (dc.IsTeamA != team.IsTeamA) continue;
@@ -183,28 +171,22 @@ public class ModeManager : MonoBehaviourPun
                 { p2Pos = dc.transform.position; hasP2 = true; }
             }
 
-            if (hasP1 && hasP2)
-                midpoints[team.IsTeamA] = (p1Pos + p2Pos) * 0.5f;
-            else if (hasP1)
-                midpoints[team.IsTeamA] = p1Pos;
-            else if (hasP2)
-                midpoints[team.IsTeamA] = p2Pos;
+            Vector3 midpoint;
+            if (hasP1 && hasP2) midpoint = (p1Pos + p2Pos) * 0.5f;
+            else if (hasP1)     midpoint = p1Pos;
+            else if (hasP2)     midpoint = p2Pos;
+            else                midpoint = Vector3.zero;
+
+            spawnData.Add((team, midpoint));
         }
 
-        // Tell all players to destroy their own DivideCharacters
         photonView.RPC(nameof(DestroyOwnedDivideChars), RpcTarget.All);
-        divideChars.Clear();
-
         yield return null; // Wait for destroy
 
-        // Master spawns convergence characters at midpoints
-        foreach (var team in teams)
+        foreach (var (team, midpoint) in spawnData)
         {
-            if (!midpoints.TryGetValue(team.IsTeamA, out Vector3 pos))
-                continue;
-
             object[] initData = { team.Player1ActorNumber, team.Player2ActorNumber, team.IsTeamA };
-            var go = PhotonNetwork.Instantiate("ConvergenceCharacter", pos, Quaternion.identity, 0, initData);
+            var go = PhotonNetwork.Instantiate("ConvergenceCharacter", midpoint, Quaternion.identity, 0, initData);
             convergenceChars[team.IsTeamA] = go;
         }
 

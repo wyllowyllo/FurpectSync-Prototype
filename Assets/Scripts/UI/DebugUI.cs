@@ -129,7 +129,7 @@ public class DebugUI : MonoBehaviour
         if (modeText == null) return;
 
         if (modeManager != null)
-            modeText.text = $"[Mode] {modeManager.CurrentMode.ToString().ToUpper()} (Space to switch)";
+            modeText.text = $"[Mode] {modeManager.CurrentMode.ToString().ToUpper()} (Space)";
         else
             modeText.text = "[Mode] CONVERGENCE";
     }

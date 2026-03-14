@@ -1,13 +1,23 @@
 using System.Runtime.InteropServices;
 using UnityEngine;
+#if !UNITY_EDITOR_WIN
+using UnityEngine.InputSystem;
+#endif
 
 public static class InputReader
 {
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
     [DllImport("user32.dll")]
     private static extern short GetAsyncKeyState(int vKey);
 
     public static bool IsKeyPressed(int vKey) => (GetAsyncKeyState(vKey) & 0x8000) != 0;
+#elif UNITY_STANDALONE_WIN
+    public static bool IsKeyPressed(int vKey)
+    {
+        var kb = Keyboard.current;
+        if (kb == null) return false;
+        return vKey == 0x20 && kb.spaceKey.isPressed;
+    }
 #else
     public static bool IsKeyPressed(int vKey) => false;
 #endif
@@ -25,7 +35,7 @@ public static class InputReader
         float h = 0f;
         float v = 0f;
 
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
         if (isTeamA)
         {
             if (isPlayer1)
@@ -59,6 +69,15 @@ public static class InputReader
                 if (IsKeyPressed(0x30)) h += 1f; // 0
                 if (IsKeyPressed(0x37)) h -= 1f; // 7
             }
+        }
+#elif UNITY_STANDALONE_WIN
+        var kb = Keyboard.current;
+        if (kb != null)
+        {
+            if (kb.wKey.isPressed) v += 1f;
+            if (kb.sKey.isPressed) v -= 1f;
+            if (kb.dKey.isPressed) h += 1f;
+            if (kb.aKey.isPressed) h -= 1f;
         }
 #endif
 
