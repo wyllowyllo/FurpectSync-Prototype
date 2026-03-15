@@ -7,8 +7,13 @@
     <list default="true" id="105eee1a-7c12-449e-8485-8b3e56e56689" name="변경" comment="">
       <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FurpectSync-Prototype/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FurpectSync-Prototype/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/5f023994-4a3a-4646-8de8-4d5220f80e7f_Fall_Guys_스타일_래그돌_아바타_제작_가이드_(Unity_6).pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Fall_Guys_스타일_래그돌_아바타_제작_가이드_(Unity_6).pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Animation/GetUp_Back.fbx.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animation/GetUp_Back.fbx.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Animation/GetUp_Front.fbx.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animation/GetUp_Front.fbx.meta" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Animation/party_character@Standing W_Briefcase Idle.fbx.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animation/party_character@Standing W_Briefcase Idle.fbx.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scenes/Ragdoll.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Ragdoll.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Ragdoll/FallGuysRagdoll.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Ragdoll/FallGuysRagdoll.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/DynamicsManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/DynamicsManager.asset" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" beforeDir="false" afterPath="$PROJECT_DIR$/ProjectSettings/TagManager.asset" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

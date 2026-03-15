@@ -8,7 +8,8 @@
       "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" show --stat 064654a)",
       "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" log -1 --format=\"%B\" 064654a)",
       "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" diff HEAD~1 HEAD -- Assets/Scenes/Ragdoll.unity | head -200)",
-      "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" log --all --graph --oneline -15)"
+      "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" log --all --graph --oneline -15)",
+      "Bash(grep -r \"RagdollState\\\\|Locomotion\\\\|GetUp\" \"C:/Harbor/FurpectSync-Prototype/Assets/Animation/\" \"C:/Harbor/FurpectSync-Prototype/Assets/FREE/\" --include=\"*.controller\" 2>/dev/null | head -20)"
     ]
   }
 }

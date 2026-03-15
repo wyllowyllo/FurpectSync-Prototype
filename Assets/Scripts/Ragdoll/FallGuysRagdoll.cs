@@ -15,6 +15,8 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
     [SerializeField] private float ragdollDuration = 0.8f;
     [SerializeField] private float blendDuration = 0.3f;
     [SerializeField] private float impactThreshold = 5f;
+    [SerializeField] private float groundCheckDistance = 10f;
+    [SerializeField] private LayerMask groundLayer;
 
     private RagdollState currentState = RagdollState.Animated;
     private Rigidbody[] ragdollRbs;
@@ -24,6 +26,7 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
     private Vector3[] bonePositionSnapshot;
     private Quaternion[] boneRotationSnapshot;
     private float blendTimer;
+    private Coroutine activeCoroutine;
 
     public RagdollState CurrentState => currentState;
 
@@ -61,7 +64,15 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
         if (impulse.magnitude < impactThreshold) return;
         if (currentState == RagdollState.Dead) return;
 
+        if (activeCoroutine != null)
+        {
+            StopCoroutine(activeCoroutine);
+            activeCoroutine = null;
+        }
+
         currentState = RagdollState.Ragdoll;
+
+        ResetRagdollVelocities();
         SetRagdollActive(true);
 
         Rigidbody closestRb = GetClosestBoneRb(hitPoint);
@@ -72,16 +83,30 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
 
         OnImpactTriggered?.Invoke(impulse, hitPoint);
 
-        StartCoroutine(RagdollToBlendCoroutine());
+        activeCoroutine = StartCoroutine(RagdollToBlendCoroutine());
     }
 
     public void OnDeath()
     {
+        if (activeCoroutine != null)
+        {
+            StopCoroutine(activeCoroutine);
+            activeCoroutine = null;
+        }
+
         currentState = RagdollState.Dead;
         SetRagdollActive(true);
-        StopAllCoroutines();
 
         OnDeathTriggered?.Invoke();
+    }
+
+    private void ResetRagdollVelocities()
+    {
+        foreach (var rb in ragdollRbs)
+        {
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+        }
     }
 
     private Rigidbody GetClosestBoneRb(Vector3 point)
@@ -97,6 +122,8 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
 
         if (currentState == RagdollState.Ragdoll)
             StartBlendToAnimation();
+
+        activeCoroutine = null;
     }
 
     private void StartBlendToAnimation()
@@ -109,10 +136,17 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
             boneRotationSnapshot[i] = ragdollBones[i].rotation;
         }
 
+        Vector3 hipsPos = ragdollBones[0].position;
+
         SetRagdollActive(false);
 
-        Vector3 hipsPos = ragdollBones[0].position;
-        capsuleRb.MovePosition(new Vector3(hipsPos.x, GetFeetY(), hipsPos.z));
+        float groundY = GetGroundY(hipsPos);
+        capsuleRb.MovePosition(new Vector3(hipsPos.x, groundY, hipsPos.z));
+
+        Vector3 hipsForward = ragdollBones[0].rotation * Vector3.forward;
+        hipsForward.y = 0f;
+        if (hipsForward.sqrMagnitude > 0.001f)
+            capsuleRb.MoveRotation(Quaternion.LookRotation(hipsForward));
 
         animator.enabled = true;
         animator.CrossFade("GetUp", 0.1f);
@@ -120,11 +154,15 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
         blendTimer = 0f;
     }
 
-    private float GetFeetY()
+    private float GetGroundY(Vector3 origin)
     {
-        Transform leftFoot = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
-        Transform rightFoot = animator.GetBoneTransform(HumanBodyBones.RightFoot);
-        return Mathf.Min(leftFoot.position.y, rightFoot.position.y);
+        Vector3 rayOrigin = origin + Vector3.up * 0.5f;
+
+        if (Physics.Raycast(rayOrigin, Vector3.down, out RaycastHit hit,
+                groundCheckDistance, groundLayer))
+            return hit.point.y;
+
+        return origin.y;
     }
 
     private void LateUpdate()
