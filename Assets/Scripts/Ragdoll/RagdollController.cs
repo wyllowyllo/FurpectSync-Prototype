@@ -46,6 +46,8 @@ public class RagdollController : MonoBehaviour, IRagdollInput
         boneRotationSnapshot = new Quaternion[ragdollBones.Length];
 
         SetRagdollActive(false);
+
+        capsuleRb.constraints = RigidbodyConstraints.FreezeRotation;
     }
 
     private void SetRagdollActive(bool active)
@@ -130,9 +132,20 @@ public class RagdollController : MonoBehaviour, IRagdollInput
 
     private Rigidbody GetClosestBoneRb(Vector3 point)
     {
-        return ragdollRbs
-            .OrderBy(rb => Vector3.Distance(rb.position, point))
-            .First();
+        Rigidbody closest = ragdollRbs[0];
+        float closestSqr = (closest.position - point).sqrMagnitude;
+
+        for (int i = 1; i < ragdollRbs.Length; i++)
+        {
+            float sqr = (ragdollRbs[i].position - point).sqrMagnitude;
+            if (sqr < closestSqr)
+            {
+                closest = ragdollRbs[i];
+                closestSqr = sqr;
+            }
+        }
+
+        return closest;
     }
 
     private IEnumerator RagdollToBlendCoroutine()
@@ -156,10 +169,9 @@ public class RagdollController : MonoBehaviour, IRagdollInput
         }
 
         Vector3 hipsPos = ragdollBones[0].position;
-
-        SetRagdollActive(false);
-
         float groundY = GetGroundY(hipsPos);
+
+        // capsuleRb가 아직 kinematic인 상태에서 텔레포트
         capsuleRb.MovePosition(new Vector3(hipsPos.x, groundY, hipsPos.z));
 
         Vector3 hipsForward = ragdollBones[0].rotation * Vector3.forward;
@@ -167,8 +179,16 @@ public class RagdollController : MonoBehaviour, IRagdollInput
         if (hipsForward.sqrMagnitude > 0.001f)
             capsuleRb.MoveRotation(Quaternion.LookRotation(hipsForward));
 
-        animator.enabled = true;
-        animator.CrossFade("GetUp", 0.1f);
+        // 이제 물리 모드 전환
+        SetRagdollActive(false);
+
+        // 잔여 속도 제거
+        capsuleRb.linearVelocity = Vector3.zero;
+        capsuleRb.angularVelocity = Vector3.zero;
+
+        // BlendToAnim 동안 UpperBodyPhysics 비활성화
+        if (upperBodyPhysics != null)
+            upperBodyPhysics.SetActive(false);
 
         blendTimer = 0f;
     }
@@ -191,23 +211,28 @@ public class RagdollController : MonoBehaviour, IRagdollInput
         blendTimer += Time.deltaTime;
         float t = Mathf.Clamp01(blendTimer / blendDuration);
 
-        for (int i = 0; i < ragdollBones.Length; i++)
+        // Phase 1: 본 블렌드
+        if (t < 1f)
         {
-            ragdollBones[i].position = Vector3.Lerp(
-                bonePositionSnapshot[i],
-                ragdollBones[i].position,
-                t);
+            for (int i = 0; i < ragdollBones.Length; i++)
+            {
+                ragdollBones[i].position = Vector3.Lerp(
+                    bonePositionSnapshot[i],
+                    ragdollBones[i].position,
+                    t);
 
-            ragdollBones[i].rotation = Quaternion.Slerp(
-                boneRotationSnapshot[i],
-                ragdollBones[i].rotation,
-                t);
+                ragdollBones[i].rotation = Quaternion.Slerp(
+                    boneRotationSnapshot[i],
+                    ragdollBones[i].rotation,
+                    t);
+            }
+            return;
         }
 
-        if (t >= 1f)
-        {
-            currentState = ERagdollState.Animated;
-            animator.CrossFade("Locomotion", 0.1f);
-        }
+        currentState = ERagdollState.Animated;
+        animator.CrossFade("Locomotion", 0.2f);
+
+        if (upperBodyPhysics != null)
+            upperBodyPhysics.SetActive(true);
     }
 }

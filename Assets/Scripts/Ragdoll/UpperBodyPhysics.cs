@@ -19,10 +19,6 @@ public class UpperBodyPhysics : MonoBehaviour
     private void Awake()
     {
         spineRb = spineTransform.GetComponent<Rigidbody>();
-        
-
-        if (spineRb != null)
-            spineRb.isKinematic = true;
     }
 
     private void LateUpdate()

@@ -1059,6 +1059,8 @@ GameObject:
   - component: {fileID: 868325765500168289}
   - component: {fileID: 281319124735588683}
   - component: {fileID: 669274036982315928}
+  - component: {fileID: 49434971065634772}
+  - component: {fileID: 3152515359382413640}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -1130,7 +1132,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 112
   m_CollisionDetection: 0
 --- !u!136 &281319124735588683
 CapsuleCollider:
@@ -1171,7 +1173,7 @@ MonoBehaviour:
   capsuleCollider: {fileID: 281319124735588683}
   capsuleRb: {fileID: 868325765500168289}
   hipsRoot: {fileID: 3887816435764646392}
-  upperBodyPhysics: {fileID: 0}
+  upperBodyPhysics: {fileID: 49434971065634772}
   ragdollDuration: 0.8
   blendDuration: 0.3
   groundCheckDistance: 10
@@ -1179,6 +1181,43 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   ragdollThreshold: 8
+--- !u!114 &49434971065634772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818676082942201579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a907a6c0db4609041b2d732077955f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UpperBodyPhysics
+  spineTransform: {fileID: 5868235346616917234}
+  spring: 200
+  damper: 50
+  impulseMultiplier: 3
+--- !u!114 &3152515359382413640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818676082942201579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2150f67413d976d40aaa9bd89ec2b36b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TestCharacterController
+  moveSpeed: 5
+  accelerationTime: 0.15
+  decelerationTime: 0.1
+  rotationSpeed: 10
+  leanImpulseScale: 0.2
+  animator: {fileID: 9061724144833301724}
+  capsuleRb: {fileID: 868325765500168289}
+  upperBodyPhysics: {fileID: 49434971065634772}
+  ragdollController: {fileID: 669274036982315928}
 --- !u!1 &5937243193681469662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1321,7 +1360,7 @@ GameObject:
   - component: {fileID: 5868235346616917234}
   - component: {fileID: 6602256026384910765}
   - component: {fileID: 2023151734575308314}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1363,8 +1402,8 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 50
-  m_Height: 100
+  m_Radius: 30
+  m_Height: 50
   m_Direction: 1
   m_Center: {x: 0, y: 90, z: 0}
 --- !u!54 &2023151734575308314
