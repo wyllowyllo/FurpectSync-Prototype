@@ -3,22 +3,25 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 
-public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
+public class RagdollController : MonoBehaviour, IRagdollInput
 {
     [Header("References")]
     [SerializeField] private Animator animator;
     [SerializeField] private Collider capsuleCollider;
     [SerializeField] private Rigidbody capsuleRb;
     [SerializeField] private Transform hipsRoot;
+    [SerializeField] private UpperBodyPhysics upperBodyPhysics;
 
     [Header("Ragdoll Settings")]
     [SerializeField] private float ragdollDuration = 0.8f;
     [SerializeField] private float blendDuration = 0.3f;
-    [SerializeField] private float impactThreshold = 5f;
     [SerializeField] private float groundCheckDistance = 10f;
     [SerializeField] private LayerMask groundLayer;
 
-    private RagdollState currentState = RagdollState.Animated;
+    [Header("Impact Thresholds")]
+    [SerializeField] private float ragdollThreshold = 8f;
+
+    private ERagdollState currentState = ERagdollState.Animated;
     private Rigidbody[] ragdollRbs;
     private Collider[] ragdollCols;
     private Transform[] ragdollBones;
@@ -28,7 +31,7 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
     private float blendTimer;
     private Coroutine activeCoroutine;
 
-    public RagdollState CurrentState => currentState;
+    public ERagdollState CurrentState => currentState;
 
     public event Action<Vector3, Vector3> OnImpactTriggered;
     public event Action OnDeathTriggered;
@@ -57,20 +60,36 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
         capsuleRb.isKinematic = active;
 
         animator.enabled = !active;
+
+        if (upperBodyPhysics != null)
+            upperBodyPhysics.SetActive(!active);
     }
 
     public void OnHitImpact(Vector3 impulse, Vector3 hitPoint)
     {
-        if (impulse.magnitude < impactThreshold) return;
-        if (currentState == RagdollState.Dead) return;
+        if (currentState == ERagdollState.Dead) return;
 
+        float magnitude = impulse.magnitude;
+
+        if (magnitude >= ragdollThreshold)
+        {
+            EnterRagdoll(impulse, hitPoint);
+            return;
+        }
+
+        if (upperBodyPhysics != null)
+            upperBodyPhysics.AddImpulse(impulse);
+    }
+
+    private void EnterRagdoll(Vector3 impulse, Vector3 hitPoint)
+    {
         if (activeCoroutine != null)
         {
             StopCoroutine(activeCoroutine);
             activeCoroutine = null;
         }
 
-        currentState = RagdollState.Ragdoll;
+        currentState = ERagdollState.Ragdoll;
 
         ResetRagdollVelocities();
         SetRagdollActive(true);
@@ -78,7 +97,7 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
         Rigidbody closestRb = GetClosestBoneRb(hitPoint);
         closestRb.AddForce(impulse, ForceMode.Impulse);
         closestRb.AddTorque(
-            UnityEngine.Random.insideUnitSphere * impulse.magnitude * 0.5f,
+            UnityEngine.Random.insideUnitSphere * impulse.magnitude * 0.15f,
             ForceMode.Impulse);
 
         OnImpactTriggered?.Invoke(impulse, hitPoint);
@@ -94,7 +113,7 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
             activeCoroutine = null;
         }
 
-        currentState = RagdollState.Dead;
+        currentState = ERagdollState.Dead;
         SetRagdollActive(true);
 
         OnDeathTriggered?.Invoke();
@@ -120,7 +139,7 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
     {
         yield return new WaitForSeconds(ragdollDuration);
 
-        if (currentState == RagdollState.Ragdoll)
+        if (currentState == ERagdollState.Ragdoll)
             StartBlendToAnimation();
 
         activeCoroutine = null;
@@ -128,7 +147,7 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
 
     private void StartBlendToAnimation()
     {
-        currentState = RagdollState.BlendToAnim;
+        currentState = ERagdollState.BlendToAnim;
 
         for (int i = 0; i < ragdollBones.Length; i++)
         {
@@ -167,7 +186,7 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
 
     private void LateUpdate()
     {
-        if (currentState != RagdollState.BlendToAnim) return;
+        if (currentState != ERagdollState.BlendToAnim) return;
 
         blendTimer += Time.deltaTime;
         float t = Mathf.Clamp01(blendTimer / blendDuration);
@@ -187,7 +206,7 @@ public class FallGuysRagdoll : MonoBehaviour, IRagdollInput
 
         if (t >= 1f)
         {
-            currentState = RagdollState.Animated;
+            currentState = ERagdollState.Animated;
             animator.CrossFade("Locomotion", 0.1f);
         }
     }

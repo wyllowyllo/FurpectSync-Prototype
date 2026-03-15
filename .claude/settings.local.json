@@ -9,7 +9,10 @@
       "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" log -1 --format=\"%B\" 064654a)",
       "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" diff HEAD~1 HEAD -- Assets/Scenes/Ragdoll.unity | head -200)",
       "Bash(git -C \"C:\\\\Harbor\\\\FurpectSync-Prototype\" log --all --graph --oneline -15)",
-      "Bash(grep -r \"RagdollState\\\\|Locomotion\\\\|GetUp\" \"C:/Harbor/FurpectSync-Prototype/Assets/Animation/\" \"C:/Harbor/FurpectSync-Prototype/Assets/FREE/\" --include=\"*.controller\" 2>/dev/null | head -20)"
+      "Bash(grep -r \"RagdollState\\\\|Locomotion\\\\|GetUp\" \"C:/Harbor/FurpectSync-Prototype/Assets/Animation/\" \"C:/Harbor/FurpectSync-Prototype/Assets/FREE/\" --include=\"*.controller\" 2>/dev/null | head -20)",
+      "WebSearch",
+      "Bash(find \"C:\\\\Harbor\\\\FurpectSync-Prototype/Assets\" -type f -name \"*.cs\" | xargs grep -l \"Stumble\\\\|Wobble\" 2>/dev/null | head -10)",
+      "Bash(ls -la \"C:\\\\Harbor\\\\FurpectSync-Prototype\\\\Assets\\\\Scripts\\\\Ragdoll\\\\\" 2>/dev/null || find \"C:\\\\Harbor\\\\FurpectSync-Prototype\\\\Assets\\\\Scripts\\\\Ragdoll\" -type f)"
     ]
   }
 }

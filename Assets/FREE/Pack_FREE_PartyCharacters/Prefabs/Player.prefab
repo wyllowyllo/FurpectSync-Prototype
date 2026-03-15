@@ -196,7 +196,7 @@ GameObject:
   - component: {fileID: 4827830442491259268}
   - component: {fileID: 5071108915581358837}
   - component: {fileID: 7455860776512213693}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RightForeArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -327,7 +327,7 @@ GameObject:
   - component: {fileID: 1521598087311090725}
   - component: {fileID: 5887563654474247184}
   - component: {fileID: 4827191008095486611}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RightLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -492,7 +492,7 @@ GameObject:
   - component: {fileID: 4219759651520051708}
   - component: {fileID: 113217102577598729}
   - component: {fileID: 1991326020815305190}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LeftLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -655,7 +655,7 @@ GameObject:
   - component: {fileID: 3954327052929102620}
   - component: {fileID: 8953165125277741401}
   - component: {fileID: 7635467503386245516}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RightUpLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -939,7 +939,7 @@ GameObject:
   - component: {fileID: 3887816435764646392}
   - component: {fileID: 4499400526667753420}
   - component: {fileID: 4718034990903540977}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hips
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1010,10 +1010,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 49.77032
-  m_Height: 180.4088
+  m_Radius: 50
+  m_Height: 180
   m_Direction: 1
-  m_Center: {x: 0.72000027, y: 64.85959, z: -0.9634854}
+  m_Center: {x: 0, y: 60, z: -0.9634854}
 --- !u!1 &5811694177582013512
 GameObject:
   m_ObjectHideFlags: 0
@@ -1056,8 +1056,11 @@ GameObject:
   m_Component:
   - component: {fileID: 576755707796866106}
   - component: {fileID: 9061724144833301724}
-  m_Layer: 0
-  m_Name: Character_8d9656
+  - component: {fileID: 868325765500168289}
+  - component: {fileID: 281319124735588683}
+  - component: {fileID: 669274036982315928}
+  m_Layer: 7
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1090,24 +1093,92 @@ Animator:
   m_GameObject: {fileID: 5818676082942201579}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: f9f65d468731bcf4fba794d064637f84, type: 3}
-  m_Controller: {fileID: 9100000, guid: dd9b07c29b5310946a030aab4c3a971e, type: 2}
+  m_Controller: {fileID: 9100000, guid: a5d4cf02553b9194c88ffb0b178d0d56, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
   m_AnimatePhysics: 0
-  m_WarningMessage: "\nBinding warning: Some generic clip(s) animate transforms that
-    are already bound by a Humanoid avatar. These transforms can only be changed
-    by Humanoid clips.\n\tTransform 'Armature'\n\tTransform 'Hips'\n\tTransform 'Spine1'\n\tTransform
-    'RightForeArm'\n\tTransform 'LeftLeg'\n\tTransform 'LeftArm'\n\tTransform 'RightShoulder'\n\tTransform
-    'LeftShoulder'\n\tTransform 'RightArm'\n\tTransform 'Armature'\n\tand more ...\n\tFrom
-    animation clip 'fall'\n\tFrom animation clip 'jump'\n\tFrom animation clip 'win'\n\tFrom
-    animation clip 'lose'"
+  m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!54 &868325765500168289
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818676082942201579}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
+--- !u!136 &281319124735588683
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818676082942201579}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5109995
+  m_Height: 2.4612274
+  m_Direction: 1
+  m_Center: {x: -0.0043504834, y: 1.1298761, z: 0}
+--- !u!114 &669274036982315928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5818676082942201579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a34a24a77bac4ea438aba0af9f5ee9c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FallGuysRagdoll
+  animator: {fileID: 9061724144833301724}
+  capsuleCollider: {fileID: 281319124735588683}
+  capsuleRb: {fileID: 868325765500168289}
+  hipsRoot: {fileID: 3887816435764646392}
+  upperBodyPhysics: {fileID: 0}
+  ragdollDuration: 0.8
+  blendDuration: 0.3
+  groundCheckDistance: 10
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  ragdollThreshold: 8
 --- !u!1 &5937243193681469662
 GameObject:
   m_ObjectHideFlags: 0
@@ -1120,7 +1191,7 @@ GameObject:
   - component: {fileID: 8650502496269209525}
   - component: {fileID: 3730181666628974822}
   - component: {fileID: 9050946588272881622}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: RightArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1248,6 +1319,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5868235346616917234}
+  - component: {fileID: 6602256026384910765}
+  - component: {fileID: 2023151734575308314}
   m_Layer: 0
   m_Name: Spine
   m_TagString: Untagged
@@ -1271,6 +1344,56 @@ Transform:
   - {fileID: 8393113821632155516}
   m_Father: {fileID: 3887816435764646392}
   m_LocalEulerAnglesHint: {x: 1.5545002, y: -0.196179, z: -1.6138184}
+--- !u!136 &6602256026384910765
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5949973733983734944}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 50
+  m_Height: 100
+  m_Direction: 1
+  m_Center: {x: 0, y: 90, z: 0}
+--- !u!54 &2023151734575308314
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5949973733983734944}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &6319245277159795633
 GameObject:
   m_ObjectHideFlags: 0
@@ -1283,7 +1406,7 @@ GameObject:
   - component: {fileID: 883537264217381626}
   - component: {fileID: 5542464175132579515}
   - component: {fileID: 5215627903585786509}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LeftArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1588,7 +1711,7 @@ GameObject:
   - component: {fileID: 5305951172459493661}
   - component: {fileID: 1793469189766936750}
   - component: {fileID: 1073728044664651303}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LeftUpLeg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1843,7 +1966,7 @@ GameObject:
   - component: {fileID: 4892744120390642899}
   - component: {fileID: 966217915021479361}
   - component: {fileID: 7480157101998474782}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: LeftForeArm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
