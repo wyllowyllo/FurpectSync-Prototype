@@ -5,13 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="105eee1a-7c12-449e-8485-8b3e56e56689" name="변경" comment="">
-      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FurpectSync-Prototype/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FurpectSync-Prototype/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Animation/party_character@Running.fbx.meta" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Animation/party_character@Running.fbx.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/FREE/Pack_FREE_PartyCharacters/Prefabs/Player.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/FREE/Pack_FREE_PartyCharacters/Prefabs/Player.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scenes/Ragdoll.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scenes/Ragdoll.unity" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/Ragdoll/RagdollController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Ragdoll/RagdollController.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Ragdoll/UpperBodyPhysics.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Ragdoll/UpperBodyPhysics.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

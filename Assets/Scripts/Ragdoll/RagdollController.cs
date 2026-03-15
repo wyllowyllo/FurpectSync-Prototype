@@ -13,7 +13,9 @@ public class RagdollController : MonoBehaviour, IRagdollInput
     [SerializeField] private UpperBodyPhysics upperBodyPhysics;
 
     [Header("Ragdoll Settings")]
-    [SerializeField] private float ragdollDuration = 0.8f;
+    [SerializeField] private float minRagdollDuration = 0.5f;
+    [SerializeField] private float maxRagdollDuration = 2.0f;
+    [SerializeField] private float durationPerImpulse = 0.1f;
     [SerializeField] private float blendDuration = 0.3f;
     [SerializeField] private float groundCheckDistance = 10f;
     [SerializeField] private LayerMask groundLayer;
@@ -93,8 +95,11 @@ public class RagdollController : MonoBehaviour, IRagdollInput
 
         currentState = ERagdollState.Ragdoll;
 
-        ResetRagdollVelocities();
+        Vector3 inheritedVelocity = capsuleRb.linearVelocity;
         SetRagdollActive(true);
+
+        foreach (var rb in ragdollRbs)
+            rb.linearVelocity = inheritedVelocity;
 
         Rigidbody closestRb = GetClosestBoneRb(hitPoint);
         closestRb.AddForce(impulse, ForceMode.Impulse);
@@ -104,7 +109,11 @@ public class RagdollController : MonoBehaviour, IRagdollInput
 
         OnImpactTriggered?.Invoke(impulse, hitPoint);
 
-        activeCoroutine = StartCoroutine(RagdollToBlendCoroutine());
+        float duration = Mathf.Clamp(
+            impulse.magnitude * durationPerImpulse,
+            minRagdollDuration,
+            maxRagdollDuration);
+        activeCoroutine = StartCoroutine(RagdollToBlendCoroutine(duration));
     }
 
     public void OnDeath()
@@ -119,15 +128,6 @@ public class RagdollController : MonoBehaviour, IRagdollInput
         SetRagdollActive(true);
 
         OnDeathTriggered?.Invoke();
-    }
-
-    private void ResetRagdollVelocities()
-    {
-        foreach (var rb in ragdollRbs)
-        {
-            rb.linearVelocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-        }
     }
 
     private Rigidbody GetClosestBoneRb(Vector3 point)
@@ -148,9 +148,9 @@ public class RagdollController : MonoBehaviour, IRagdollInput
         return closest;
     }
 
-    private IEnumerator RagdollToBlendCoroutine()
+    private IEnumerator RagdollToBlendCoroutine(float duration)
     {
-        yield return new WaitForSeconds(ragdollDuration);
+        yield return new WaitForSeconds(duration);
 
         if (currentState == ERagdollState.Ragdoll)
             StartBlendToAnimation();
