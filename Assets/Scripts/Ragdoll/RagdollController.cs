@@ -171,13 +171,12 @@ public class RagdollController : MonoBehaviour, IRagdollInput
         Vector3 hipsPos = ragdollBones[0].position;
         float groundY = GetGroundY(hipsPos);
 
-        // capsuleRb가 아직 kinematic인 상태에서 텔레포트
-        capsuleRb.MovePosition(new Vector3(hipsPos.x, groundY, hipsPos.z));
+        capsuleRb.position = new Vector3(hipsPos.x, groundY, hipsPos.z);
 
         Vector3 hipsForward = ragdollBones[0].rotation * Vector3.forward;
         hipsForward.y = 0f;
         if (hipsForward.sqrMagnitude > 0.001f)
-            capsuleRb.MoveRotation(Quaternion.LookRotation(hipsForward));
+            capsuleRb.rotation = Quaternion.LookRotation(hipsForward);
 
         // 이제 물리 모드 전환
         SetRagdollActive(false);
