@@ -1174,7 +1174,9 @@ MonoBehaviour:
   capsuleRb: {fileID: 868325765500168289}
   hipsRoot: {fileID: 3887816435764646392}
   upperBodyPhysics: {fileID: 49434971065634772}
-  ragdollDuration: 0.8
+  minRagdollDuration: 0.5
+  maxRagdollDuration: 2
+  durationPerImpulse: 0.1
   blendDuration: 0.3
   groundCheckDistance: 10
   groundLayer:
@@ -1213,10 +1215,8 @@ MonoBehaviour:
   accelerationTime: 0.15
   decelerationTime: 0.1
   rotationSpeed: 10
-  leanImpulseScale: 0.2
   animator: {fileID: 9061724144833301724}
   capsuleRb: {fileID: 868325765500168289}
-  upperBodyPhysics: {fileID: 49434971065634772}
   ragdollController: {fileID: 669274036982315928}
 --- !u!1 &5937243193681469662
 GameObject:
@@ -1402,7 +1402,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 30
+  m_Radius: 40
   m_Height: 50
   m_Direction: 1
   m_Center: {x: 0, y: 90, z: 0}

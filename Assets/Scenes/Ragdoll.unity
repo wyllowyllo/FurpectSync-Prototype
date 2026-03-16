@@ -1957,6 +1957,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 49434971065634772, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: damper
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 49434971065634772, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
+      propertyPath: spring
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 576755707796866106, guid: 5ddb42764212839478d512c0afb12cfd, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.8637285

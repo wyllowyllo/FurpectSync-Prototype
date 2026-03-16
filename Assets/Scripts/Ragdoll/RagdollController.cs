@@ -19,6 +19,7 @@ public class RagdollController : MonoBehaviour, IRagdollInput
     [SerializeField] private float blendDuration = 0.3f;
     [SerializeField] private float groundCheckDistance = 10f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private bool useGetUpAnimation = true;
 
     [Header("Impact Thresholds")]
     [SerializeField] private float ragdollThreshold = 8f;
@@ -32,6 +33,7 @@ public class RagdollController : MonoBehaviour, IRagdollInput
     private Quaternion[] boneRotationSnapshot;
     private float blendTimer;
     private Coroutine activeCoroutine;
+    private bool savedFaceUp;
 
     public ERagdollState CurrentState => currentState;
 
@@ -162,6 +164,8 @@ public class RagdollController : MonoBehaviour, IRagdollInput
     {
         currentState = ERagdollState.BlendToAnim;
 
+        savedFaceUp = Vector3.Dot(ragdollBones[0].up, Vector3.up) > 0;
+
         for (int i = 0; i < ragdollBones.Length; i++)
         {
             bonePositionSnapshot[i] = ragdollBones[i].position;
@@ -229,7 +233,15 @@ public class RagdollController : MonoBehaviour, IRagdollInput
         }
 
         currentState = ERagdollState.Animated;
-        animator.CrossFade("Locomotion", 0.2f);
+        if (useGetUpAnimation)
+        {
+            string getUpClip = savedFaceUp ? "GetUp_Back" : "GetUp_Front";
+            animator.CrossFade(getUpClip, 0.2f);
+        }
+        else
+        {
+            animator.CrossFade("Locomotion", 0.2f);
+        }
 
         if (upperBodyPhysics != null)
             upperBodyPhysics.SetActive(true);
